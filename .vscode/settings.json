@@ -1,0 +1,59 @@
+{
+  // ========================
+  // ✨ フォーマッタの設定
+  // ========================
+  "[css]": {
+    "editor.formatOnSave": false, // cssファイルは保存時にフォーマットしない
+    "editor.defaultFormatter": "naumstory.vscode-csscomb" // CSSComb
+  },
+  "[scss]": {
+    "editor.formatOnSave": true, // scssファイルは保存時にフォーマットする
+    "editor.defaultFormatter": "naumstory.vscode-csscomb" // CSSComb
+  },
+
+  // ========================
+  // ✨ 拡張機能: CSSComb
+  // ========================
+  "csscomb.formatOnSave": true, //保存時にフォーマットするかどうか
+  "csscomb.ignoreFilesOnSave": [
+    //除外ファイルの設定
+    "**/node_modules/**", // node_modules以下を除外
+  ],
+  "csscomb.syntaxAssociations": {
+    "postcss": "scss" // scssに対応
+  },
+  "csscomb.preset": ".vscode/csscomb.json", //設定ファイルの指定
+
+  // ========================
+  // ✨ 拡張機能: Live Sass Compiler
+  // ========================
+  // Autoprefixerの設定
+  // "liveSassCompile.settings.autoprefix": [
+  //   "last 2 versions", // メジャーバージョンの最新2つ
+  //   "> 1%", // グローバルシェアが1%以上
+  //   "not dead" // 過去1年間にアップデートされたブラウザのみ
+  // ],
+  //除外リスト
+  "liveSassCompile.settings.excludeList": [
+    "/**/node_modules/**", // node_modulesファイルを除外
+    "/.vscode/**", // .vscodeファイルを除外
+    "/.history/**" // .historyファイルを除外
+  ],
+  "liveSassCompile.settings.generateMap": false, //mapファイルを出すか
+  "liveSassCompile.settings.showOutputWindowOn": "Error", // エラーログ出力
+  "liveSassCompile.settings.includeItems": [], // どのファイルをコンパイル対象にするか（現在は空）
+  "liveSassCompile.settings.formats": [
+    {
+      "format": "expanded", // フォーマットルール
+      "extensionName": ".css", // コンパイルされたファイルの拡張子
+      "savePath": "/assets/css" // 保存場所のパス（nullだと同階層）
+    }
+    // 圧縮版の設定
+    // ,
+    // {
+    //   "format": "compressed", // フォーマットルール
+    //   "extensionName": ".min.css", // コンパイルされたファイルの拡張子
+    //   "savePath": "/css" // 保存場所のパス
+    // }
+  ]
+}

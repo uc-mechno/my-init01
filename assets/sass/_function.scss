@@ -1,0 +1,209 @@
+@use 'variable' as *;
+
+@use 'sass:map';
+@use 'sass:math';
+@use 'sass:string';
+@use 'sass:meta';
+@use 'sass:list';
+@use 'sass:color';
+@use 'sass:selector';
+
+// BREAKPOINTS
+// ==========================================================================
+/// ブレイクポイントの値を取得する関数
+/// @param {String} $size - 取得したいブレイクポイントのサイズ名（'sm', 'md', 'lg'）
+/// @return {Number} 指定されたサイズに対応するブレイクポイントの値
+/// @see $breakpoints
+/// @example scss - 使用例
+///   .example {
+///     width: breakpoints('md'); // 768px
+///     max-width: breakpoints('lg'); // 1024px
+///   }
+///
+///   @media (min-width: breakpoints('lg')) {
+///     .example {
+///       width: 50%;
+///     }
+///   }
+/// @example css - 生成されるCSS
+///   .example {
+///     width: 768px;
+///     max-width: 1024px;
+///   }
+///
+///   @media (min-width: 1024px) {
+///     .example {
+///       width: 50%;
+///     }
+///   }
+@function breakpoints($size) {
+  @return map.get($breakpoints, $size);
+}
+
+// Z INDEX
+// ==========================================================================
+/// z-indexの値を$layer変数から取得する関数
+/// @param {String} $z-index - 取得したいz-indexのキー
+/// @return {Number} 指定されたキーに対応するz-index値
+/// @see $layer
+/// @example scss - 使用例
+///   .header {
+///     z-index: z-index('header');
+///   }
+///   .modal {
+///     z-index: z-index('modal');
+///   }
+/// @example css - 生成されるCSS
+///   .header {
+///     z-index: 100;
+///   }
+///   .modal {
+///     z-index: 200;
+///   }
+///
+@function z-index($z-index) {
+  @return map.get($layer, $z-index);
+}
+
+// STRIP UNIT
+// ==========================================================================
+/// 数値から単位を除去する関数
+/// @param {Number} $number - 単位付きの数値
+/// @return {Number} - 単位なしの数値
+/// @example scss - 使用例
+///   $width: strip-unit(320px); // 結果: 320
+///   $height: strip-unit(1.5rem); // 結果: 1.5
+///
+@function strip-unit($number) {
+  @if meta.type-of($number) == 'number' and not math.is-unitless($number) {
+    @return math.div($number, ($number * 0 + 1));
+  }
+  @return $number;
+}
+
+// DIVIDE ROOT
+// ==========================================================================
+/// 親要素に対する比率を計算する関数
+/// @param {Number} $px - ピクセル値
+/// @param {Number} $parent [16] - 親要素のサイズ（通常はベースフォントサイズ）
+/// @return {Number} - 比率値
+/// @example scss - 使用例
+///   $ratio: divide-root(20px, 16px); // 結果: 1.25
+///   $ratio: divide-root(14px); // 結果: 0.875（デフォルト16pxで計算）
+///
+@function divide-root($px, $parent: 16) {
+  @return math.div(strip-unit($px), strip-unit($parent));
+}
+
+// FLUID SIZE
+// ==========================================================================
+/// clampを使用した流動的なサイズを計算する関数
+///
+/// @param {Number} $min-size - 最小値（px単位）
+/// @param {Number} $max-size - 最大値（px単位）
+/// @param {String} $breakpoint ['md'] - 基準となるブレイクポイント（'sm', 'md', 'lg'）
+/// @param {String} $unit ['rem'] - 出力単位（'rem' または 'px'）
+/// @return {String} - clamp()関数を含むCSS値
+/// @throws ブレイクポイントが存在しない場合にエラー
+/// @throws サポートされていない単位が指定された場合にエラー
+/// @example scss - 使用例
+///   .element {
+///     font-size: fluid-size(16, 24, 'lg', 'rem');
+///     padding: fluid-size(10, 20, 'md', 'px');
+///   }
+/// @example css - 出力例
+///   .element {
+///     font-size: clamp(1rem, 0.6523178808rem + 1.3245033113vw, 1.5rem);
+///     padding: clamp(10px, 3.6363636364px + 1.3636363636vw, 20px);
+///   }
+///
+@function fluid-size($min-size, $max-size, $breakpoint: 'md', $unit: 'rem') {
+  // 入力値の検証
+  @if not map.has-key($breakpoints, $breakpoint) {
+    @error "ブレイクポイント '#{$breakpoint}' が存在しません。利用可能: #{map.keys($breakpoints)}";
+  }
+
+  @if $unit != 'rem' and $unit != 'px' {
+    @error "サポートされていない単位 '#{$unit}'。'rem' または 'px' を指定してください。";
+  }
+
+  // ブレイクポイントの設定（最適化：map.getを直接使用）
+  $min-vw: divide-root(map.get($breakpoints, 'sm'));
+  $max-vw: divide-root(map.get($breakpoints, $breakpoint));
+
+  // 数値の正規化（16px基準）
+  $min-val: divide-root($min-size);
+  $max-val: divide-root($max-size);
+
+  // 傾きとy切片の計算（一回の計算で済む）
+  $slope: math.div(($max-val - $min-val), ($max-vw - $min-vw));
+  $y-intercept: $min-val - $slope * $min-vw;
+  $vw-component: $slope * 100;
+
+  // 単位変換とclamp値の生成（最適化：条件分岐を簡略化）
+  @if $unit == 'rem' {
+    @return clamp(
+      $min-val * 1rem,
+      $y-intercept * 1rem + $vw-component * 1vw,
+      $max-val * 1rem
+    );
+  } @else {
+    @return clamp(
+      strip-unit($min-size) * 1px,
+      $y-intercept * 16px + $vw-component * 1vw,
+      strip-unit($max-size) * 1px
+    );
+  }
+}
+
+// RESPONSIVE SIZE
+// ==========================================================================
+/// レスポンシブサイズを計算する関数
+///
+/// @param {Number} $size - 計算するサイズ（px単位）
+/// @param {String|Number} $context ['md'] - 基準となるコンテキスト（ブレイクポイント名または数値）
+/// @param {String} $unit ['vw'] - 出力単位（'%', 'vw', 'rem', 'em'）
+/// @return {String} - 計算された相対値
+/// @throws ブレイクポイントが存在しない場合にエラー
+/// @throws サポートされていない単位が指定された場合にエラー
+/// @example scss - 使用例
+///   .element {
+///     width: responsive-size(300px, 'lg', 'vw'); // 300/1024*100 = 29.296875vw
+///     font-size: responsive-size(18px, 16, 'rem'); // 18/16 = 1.125rem
+///     margin: responsive-size(20px, 400, '%'); // 20/400*100 = 5%
+///     line-height: responsive-size(24px, 18, 'em'); // 24/18 = 1.333em
+///   }
+/// @example css - 出力例
+///   .element {
+///     width: 29.296875vw;
+///     font-size: 1.125rem;
+///     margin: 5%;
+///     line-height: 1.333em;
+///   }
+///
+@function responsive-size($size, $context: 'md', $unit: 'vw') {
+  // コンテキストがブレイクポイント名（文字列）の場合
+  @if meta.type-of($context) == 'string' and map.has-key($breakpoints, $context) {
+    $context: strip-unit(map.get($breakpoints, $context));
+  } @else if meta.type-of($context) == 'string' {
+    @error "ブレイクポイント '#{$context}' が存在しません。利用可能: #{map.keys($breakpoints)}";
+  } @else {
+    // 数値の場合はそのまま使用
+    $context: strip-unit($context);
+  }
+
+  // 単位別の計算
+  @if $unit == '%' {
+    @return #{math.div(strip-unit($size), $context) * 100}#{$unit};
+  } @else if $unit == 'vw' {
+    @return #{math.div(strip-unit($size), $context) * 100}#{$unit};
+  } @else if $unit == 'rem' {
+    // コンテキストに対する比率でrem計算
+    @return #{math.div(strip-unit($size), $context)}#{$unit};
+  } @else if $unit == 'em' {
+    // コンテキストに対する比率でem計算
+    @return #{math.div(strip-unit($size), $context)}#{$unit};
+  } @else {
+    @error "サポートされていない単位 '#{$unit}'。'%', 'vw', 'em', 'rem' を指定してください。";
+  }
+}

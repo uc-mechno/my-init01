@@ -1,0 +1,29 @@
+@use 'index' as *;
+
+@include space-loop(".pt-", "padding-top");
+@include space-loop(".pr-", "padding-right");
+@include space-loop(".pb-", "padding-bottom");
+@include space-loop(".pl-", "padding-left");
+@include space-loop(".px-", "padding", "x");
+@include space-loop(".py-", "padding", "y");
+@include space-loop(".mt-", "margin-top");
+@include space-loop(".mr-", "margin-right");
+@include space-loop(".mb-", "margin-bottom");
+@include space-loop(".ml-", "margin-left");
+@include space-loop(".mx-", "margin", "x");
+@include space-loop(".my-", "margin", "y");
+
+@include media-query(max, md) {
+  @include space-loop(".pt-md-", "padding-top");
+  @include space-loop(".pr-md-", "padding-right");
+  @include space-loop(".pb-md-", "padding-bottom");
+  @include space-loop(".pl-md-", "padding-left");
+  @include space-loop(".px-md-", "padding", "x");
+  @include space-loop(".py-md-", "padding", "y");
+  @include space-loop(".mt-md-", "margin-top");
+  @include space-loop(".mr-md-", "margin-right");
+  @include space-loop(".mb-md-", "margin-bottom");
+  @include space-loop(".ml-md-", "margin-left");
+  @include space-loop(".mx-md-", "margin", "x");
+  @include space-loop(".my-md-", "margin", "y");
+}

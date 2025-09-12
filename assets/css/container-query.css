@@ -1,0 +1,48 @@
+.container {
+  container-name: main;
+  container-type: inline-size;
+}
+
+@container main (min-width: 360px) {
+  .container-query-sm {
+    background-color: lightyellow;
+  }
+}
+@container main (max-width: 360px) {
+  .container-query-sm {
+    background-color: lightyellow;
+  }
+}
+
+@container main (min-width: 768px) {
+  .container-query-md {
+    background-color: lightyellow;
+  }
+}
+@container main (max-width: 768px) {
+  .container-query-md {
+    background-color: lightyellow;
+  }
+}
+
+@container main (min-width: 1024px) {
+  .container-query-lg {
+    background-color: lightyellow;
+  }
+}
+@container main (max-width: 1024px) {
+  .container-query-lg {
+    background-color: lightyellow;
+  }
+}
+
+@container main (min-width: 1234px) {
+  .container-query-1234 {
+    background-color: lightyellow;
+  }
+}
+@container main (max-width: 1234px) {
+  .container-query-1234 {
+    background-color: lightyellow;
+  }
+}

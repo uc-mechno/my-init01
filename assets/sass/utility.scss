@@ -1,0 +1,140 @@
+@use "index" as *;
+
+.text-right {
+  text-align: right $important;
+}
+
+.text-center {
+  text-align: center $important;
+}
+
+.text-left {
+  text-align: left $important;
+}
+
+.text-justify {
+  text-align: justify $important;
+  text-justify: inter-ideograph $important;
+}
+
+.leading-trim {
+  @include leading-trim();
+}
+
+.only-pc {
+  display: block $important;
+
+  @include media-query(max, md) {
+    display: none $important;
+  }
+}
+
+.only-sp {
+  display: none $important;
+
+  @include media-query(max, md) {
+    display: block $important;
+  }
+}
+
+@for $value from 1 through 5 {
+  @include media-query(min, md) {
+    .mt-md-#{$value * 8} {
+      margin-top: 8px * $value $important;
+    }
+
+    .mr-md-#{$value * 8} {
+      margin-right: 8px * $value $important;
+    }
+
+    .mb-md-#{$value * 8} {
+      margin-bottom: 8px * $value $important;
+    }
+
+    .ml-md-#{$value * 8} {
+      margin-left: 8px * $value $important;
+    }
+  }
+  .mt-#{$value * 8} {
+    margin-top: 8px * $value $important;
+  }
+
+  .mr-#{$value * 8} {
+    margin-right: 8px * $value $important;
+  }
+
+  .mb-#{$value * 8} {
+    margin-bottom: 8px * $value $important;
+  }
+
+  .ml-#{$value * 8} {
+    margin-left: 8px * $value $important;
+  }
+}
+
+.mt-0 {
+  margin-top: 0 $important;
+}
+
+.mr-0 {
+  margin-right: 0 $important;
+}
+
+.mb-0 {
+  margin-bottom: 0 $important;
+}
+
+.ml-0 {
+  margin-left: 0 $important;
+}
+
+@for $value from 1 through 5 {
+  @include media-query(min, md) {
+    .pt-md-#{$value * 8} {
+      padding-top: 8px * $value $important;
+    }
+
+    .pr-md-#{$value * 8} {
+      padding-right: 8px * $value $important;
+    }
+
+    .pb-md-#{$value * 8} {
+      padding-bottom: 8px * $value $important;
+    }
+
+    .pl-md-#{$value * 8} {
+      padding-left: 8px * $value $important;
+    }
+  }
+  .pt-#{$value * 8} {
+    padding-top: 8px * $value $important;
+  }
+
+  .pr-#{$value * 8} {
+    padding-right: 8px * $value $important;
+  }
+
+  .pb-#{$value * 8} {
+    padding-bottom: 8px * $value $important;
+  }
+
+  .pl-#{$value * 8} {
+    padding-left: 8px * $value $important;
+  }
+}
+
+.pt-0 {
+  padding-top: 0 $important;
+}
+
+.pr-0 {
+  padding-right: 0 $important;
+}
+
+.pb-0 {
+  padding-bottom: 0 $important;
+}
+
+.pl-0 {
+  padding-left: 0 $important;
+}

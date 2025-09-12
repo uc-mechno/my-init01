@@ -1,0 +1,17 @@
+.hover-focus:hover, .hover-focus:focus {
+  background-color: blue;
+}
+
+.hover:hover {
+  background-color: red;
+}
+
+.focus:focus {
+  background-color: green;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hover-focus-none:hover {
+    background-color: blue;
+  }
+}

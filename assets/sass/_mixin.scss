@@ -1,0 +1,642 @@
+@use "variable" as *;
+
+@use "sass:map";
+@use "sass:math";
+@use "sass:string";
+@use "sass:meta";
+@use "sass:list";
+@use "sass:color";
+@use "sass:selector";
+
+/// LEADING TRIM
+// ==========================================================================
+/// 行間の上下余白を相殺するmixin
+/// lhがサポートされていない環境の場合は0pxを定義するため以下をbaseのcssなどに記述
+/// @supports not (top: 1lh) {  margin-block: 0px; }
+///
+/// @example scss - 行間の上下余白を相殺
+///   .text {
+///     @include leading-trim();
+///   }
+///   // CSS出力:
+///   // .text {
+///   //   margin-block: calc((1em - 1lh) / 2);
+///   // }
+@mixin leading-trim() {
+  margin-block: calc((1em - 1lh) / 2);
+}
+
+/// LINE HEIGHT
+// ==========================================================================
+/// ラインハイトの上下の余白を相殺するmixin
+/// 上のmixinの旧バージョン
+///
+/// @param {Number} $line-height - 行間（例: 1.5）
+///
+/// @example scss - 行間を1.5に設定
+///   .text {
+///     @include line-height(1.5);
+///   }
+///   // CSS出力:
+///   // .text::before,
+///   // .text::after {
+///   //   content: '';
+///   //   display: block;
+///   //   width: 0;
+///   //   height: 0;
+///   // }
+///   // .text::before {
+///   //   margin-top: calc((1 - 1.5) * 0.5em);
+///   // }
+///   // .text::after {
+///   //   margin-bottom: calc((1 - 1.5) * 0.5em);
+///   // }
+///
+@mixin line-height($line-height) {
+  &::before,
+  &::after {
+    content: "";
+    display: block;
+    width: 0;
+    height: 0;
+  }
+  &::before {
+    margin-top: calc((1 - #{$line-height}) * .5em);
+  }
+  &::after {
+    margin-bottom: calc((1 - #{$line-height}) * .5em);
+  }
+}
+
+/// ASPECT RATIO
+// ==========================================================================
+/// アスペクト比を維持するmixin
+///
+/// @param {Number} $width - 横幅（例: 16）
+/// @param {Number} $height - 高さ（例: 9）
+///
+/// @example scss - 16:9のアスペクト比
+///   .video {
+///     @include aspect-ratio(16, 9);
+///   }
+///   // CSS出力:
+///   // .video {
+///   //   position: relative;
+///   // }
+///   // .video::before {
+///   //   content: '';
+///   //   float: left;
+///   //   padding-top: 56.25%;
+///   // }
+///   // .video::after {
+///   //   content: '';
+///   //   display: block;
+///   //   clear: both;
+///   // }
+///   // .video > :first-child {
+///   //   height: 100%;
+///   //   left: 0;
+///   //   position: absolute;
+///   //   top: 0;
+///   //   width: 100%;
+///   // }
+///
+@mixin aspect-ratio($width, $height) {
+  position: relative;
+
+  &::before {
+    content: "";
+    padding-top: math.div($height, $width) * 100%;
+    float: left;
+  }
+
+  &::after {
+    content: "";
+    display: block;
+    clear: both;
+  }
+
+  & > :first-child {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+/// VISUALLY HIDDEN
+// ==========================================================================
+/// 視覚的に非表示にするmixin（スクリーンリーダーには読み上げられる）
+///
+/// @example scss - 要素を視覚的に非表示
+///   .sr-only {
+///     @include visually-hidden;
+///   }
+///   // CSS出力:
+///   // .sr-only {
+///   //   border: 0 !important;
+///   //   clip: rect(0 0 0 0) !important;
+///   //   clip-path: inset(50%) !important;
+///   //   height: 1px !important;
+///   //   margin: -1px !important;
+///   //   overflow: hidden !important;
+///   //   padding: 0 !important;
+///   //   position: absolute !important;
+///   //   white-space: nowrap !important;
+///   //   width: 1px !important;
+///   // }
+///
+@mixin visually-hidden() {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  border: 0 !important;
+  white-space: nowrap !important;
+
+  clip-path: inset(50%) !important;
+}
+
+/// SPACE LOOP
+// ==========================================================================
+/// 連番クラスを生成するmixin
+///
+/// @param {String} $className - クラス名（例: '.mt-'）
+/// @param {String} $styleName - CSSプロパティ名（例: 'margin-top'）
+/// @param {String|Bool} $double - 上下なら'y'、左右なら'x'、単一ならfalse（デフォルト: false）
+///
+/// @example scss - 単一方向
+///   @include space-loop('.mt-', 'margin-top');
+///   // CSS出力例:
+///   // .mt-8 { margin-top: 8px !important; }
+///   // .mt-16 { margin-top: 16px !important; }
+///   // ...（8px刻みで40pxまで）
+///
+/// @example scss - 左右方向
+///   @include space-loop('.mx-', 'margin', 'x');
+///   // CSS出力例:
+///   // .mx-8 { margin-left: 0 !important; margin-right: 8px !important; }
+///   // .mx-16 { margin-left: 0 !important; margin-right: 16px !important; }
+///
+/// @example scss - 上下方向
+///   @include space-loop('.my-', 'margin', 'y');
+///   // CSS出力例:
+///   // .my-8 { margin-top: 8px !important; margin-bottom: 0 !important; }
+///   // .my-16 { margin-top: 16px !important; margin-bottom: 0 !important; }
+///
+@mixin space-loop($className, $styleName, $double: false) {
+  @for $i from 8 through 40 {
+    @if $i % 8 == 0 {
+      #{$className + $i} {
+        @if $double == false {
+          #{$styleName}: #{$i}px $important;
+        } @else if $double == "x" and $i > 0 {
+          #{$styleName}: 0 #{$i}px $important;
+        } @else if $double == "y" and $i > 0 {
+          #{$styleName}: #{$i}px 0 $important;
+        } @else if $i == 0 {
+          #{$styleName}: 0 $important;
+        }
+      }
+    }
+  }
+}
+
+/// ZERO SPACE
+// ==========================================================================
+/// 0pxの余白・パディングクラスを一括生成するmixin
+/// 主に上のmixinと組み合わせて使用します。
+///
+/// @param {String} $breakpointPrefix - ブレークポイントのプレフィックス名（省略可）
+///
+/// @example scss - プレフィックスなし
+///   @include zero-space();
+///   // CSS出力例:
+///   // .pt-0 { padding-top: 0 !important; }
+///   // .pr-0 { padding-right: 0 !important; }
+///   // .pb-0 { padding-bottom: 0 !important; }
+///   // .pl-0 { padding-left: 0 !important; }
+///   // .px-0 { padding-left: 0 !important; padding-right: 0 !important; }
+///   // .py-0 { padding-top: 0 !important; padding-bottom: 0 !important; }
+///   // .p-0  { padding: 0 !important; }
+///   // .mt-0 { margin-top: 0 !important; }
+///   // .mr-0 { margin-right: 0 !important; }
+///   // .mb-0 { margin-bottom: 0 !important; }
+///   // .ml-0 { margin-left: 0 !important; }
+///   // .mx-0 { margin-left: 0 !important; margin-right: 0 !important; }
+///   // .my-0 { margin-top: 0 !important; margin-bottom: 0 !important; }
+///   // .m-0  { margin: 0 !important; }
+///
+/// @example scss - mdブレークポイント用
+///   @include zero-space('md-');
+///   // CSS出力例:
+///   // .pt-md-0 { padding-top: 0 !important; }
+///   // .pr-md-0 { padding-right: 0 !important; }
+///   // ...（他も同様にmd-付きで出力）
+///
+@mixin zero-space($breakpointPrefix: "") {
+  $props: (
+  "pt": padding-top,
+  "pr": padding-right,
+  "pb": padding-bottom,
+  "pl": padding-left,
+  "px": (padding-left, padding-right),
+  "py": (padding-top, padding-bottom),
+  "p": padding,
+  "mt": margin-top,
+  "mr": margin-right,
+  "mb": margin-bottom,
+  "ml": margin-left,
+  "mx": (margin-left, margin-right),
+  "my": (margin-top, margin-bottom),
+  "m": margin
+  );
+
+  @each $key, $value in $props {
+    .#{$key}-#{$breakpointPrefix}0 {
+      @if meta.type-of($value) == "list" {
+        @each $prop in $value {
+          #{$prop}: 0 $important;
+        }
+      } @else {
+        #{$value}: 0 $important;
+      }
+    }
+  }
+}
+
+/// FONT FACE
+// ==========================================================================
+/// Webフォントをインポートするmixin
+/// サポートする拡張子: woff2, woff, ttf, otf
+///
+/// @param {String} $name - font-family名（デフォルト: "Noto Sans JP"）
+/// @param {String} $path - フォントファイルへのパス（デフォルト: $pathFonts）
+/// @param {Number} $weight - font-weight（デフォルト: 400）
+/// @param {String} $style - font-style（"normal" または "italic"）（デフォルト: "normal"）
+/// @param {String} $display - font-display（"auto", "block", "swap", "fallback", "optional"）（デフォルト: "swap"）
+/// @param {List} $exts - フォントファイルの拡張子リスト（デフォルト: woff2 woff ttf otf）
+///
+/// @example scss - 基本的な使用
+///   @include font-face("Noto Sans JP", "#{$pathFonts}/NotoSansJP-Regular", 400, "normal", "swap", woff2 woff);
+///   // CSS出力:
+///   // @font-face {
+///   //   font-family: "Noto Sans JP";
+///   //   font-style: normal;
+///   //   font-weight: 400;
+///   //   src: url("#{$pathFonts}/NotoSansJP-Regular.woff2") format("woff2"), url("#{$pathFonts}/NotoSansJP-Regular.woff") format("woff");
+///   //   font-display: swap;
+///   // }
+///
+/// @example scss - デフォルト値を使用
+///   @include font-face("Custom Font", "fonts/CustomFont");
+///   // CSS出力:
+///   // @font-face {
+///   //   font-family: "Custom Font";
+///   //   font-style: normal;
+///   //   font-weight: 400;
+///   //   src: url("fonts/CustomFont.woff2") format("woff2"), url("fonts/CustomFont.woff") format("woff"), url("fonts/CustomFont.ttf") format("truetype"), url("fonts/CustomFont.otf") format("opentype");
+///   //   font-display: swap;
+///   // }
+///
+@mixin font-face($name: "Noto Sans JP", $path: $pathFonts, $weight: 400, $style: "normal", $display: "swap", $exts: woff2 woff ttf otf) {
+  $supported-exts: woff2 woff ttf otf;
+  $src: null;
+  $formats: (
+  otf: "opentype",
+  ttf: "truetype",
+  woff2: "woff2",
+  woff: "woff",
+  );
+  // エラーチェック
+  @if not (meta.type-of($name) == "string") {
+    @error "$name must be a string";
+  }
+
+  @if not (meta.type-of($path) == "string") {
+    @error "$path must be a string";
+  }
+
+  @if not (meta.type-of($weight) == "number") {
+    @error "$weight must be a number";
+  }
+
+  @if not list.index(("normal", "italic"), $style) {
+    @error "$style must be \"normal\" or \"italic\"";
+  }
+
+  @if not list.index(("auto", "block", "swap", "fallback", "optional"), $display) {
+    @error "$display must be one of: auto, block, swap, fallback, optional";
+  }
+
+  @if not (meta.type-of($exts) == "list") {
+    @error "$exts must be a list";
+  }
+  @each $ext in $exts {
+    @if not list.index($supported-exts, $ext) {
+      @error "Unsupported extension: #{$ext}. Supported: #{$supported-exts}";
+    }
+  }
+
+  @each $ext in $exts {
+    $format: if(map.has-key($formats, $ext), map.get($formats, $ext), $ext);
+    $src: list.append($src, url(string.quote($path + "." + $ext)) format(string.quote($format)), comma);
+  }
+
+  @font-face {
+    font-family: string.quote($name);
+    font-style: $style;
+    font-weight: $weight;
+    src: $src;
+
+    font-display: $display;
+  }
+}
+
+// MEDIA
+// ==========================================================================
+
+/// レスポンシブなメディアクエリを生成するmixin
+/// ブレークポイントは文字列キー（_variable.scssを参照）または数値で指定可能
+/// 数値は単位なしの場合pxが自動付与され、単位ありの場合はそのまま使用される
+///
+/// @param {String} $textype - メディアクエリのタイプ ('min', 'max', 'between')
+/// @param {String|Number} $bp1 - 第一ブレークポイント（文字列キーまたは数値）
+/// @param {String|Number} $bp2 [0] - 第二ブレークポイント（betweenの場合のみ使用）
+///
+/// @example scss - 最小幅を指定
+///   .element {
+///     @include media-query(min, 'md') {
+///       display: flex;
+///     }
+///   }
+///   // CSS出力:
+///   // @media screen and (min-width: 768px), print {
+///   //   .element {
+///   //     display: flex;
+///   //   }
+///   // }
+///
+/// @example scss - 最大幅を指定
+///   .element {
+///     @include media-query(max, 768) {
+///       display: block;
+///     }
+///   }
+///   // CSS出力:
+///   // @media screen and (max-width: 768px) {
+///   //   .element {
+///   //     display: block;
+///   //   }
+///   // }
+///
+/// @example scss - 範囲を指定
+///   .element {
+///     @include media-query(between, 'md', 'lg') {
+///       padding: 2rem;
+///     }
+///   }
+///   // CSS出力:
+///   // @media screen and (min-width: 768px) and (max-width: 1024px) {
+///   //   .element {
+///   //     padding: 2rem;
+///   //   }
+///   // }
+///
+/// @example scss - 数値で直接指定
+///   .element {
+///     @include media-query(min, 480) {
+///       width: 100%;
+///     }
+///   }
+///   // CSS出力:
+///   // @media screen and (min-width: 480px), print {
+///   //   .element {
+///   //     width: 100%;
+///   //   }
+///   // }
+///
+@mixin media-query($textype, $bp1, $bp2: 0) {
+  // ブレークポイントの値を取得（数値の場合はそのまま、文字列の場合はマップから取得）
+  $breakpoint1: if(meta.type-of($bp1) == "number", $bp1, map.get($breakpoints, $bp1));
+  $breakpoint2: if(meta.type-of($bp2) == "number", $bp2, map.get($breakpoints, $bp2));
+  // 引数のエラーチェック
+  @if (meta.type-of($textype) != "string" or not list.index(("min", "max", "between"), $textype)) {
+    @error "第1引数 `$textype` は 'min', 'max', 'between' のいずれかを文字列で指定してください。";
+  }
+
+  @if (meta.type-of($bp1) != "number" and meta.type-of($bp1) != "string") {
+    @error "第2引数 `$bp1` は数値または文字列で指定してください。";
+  }
+
+  @if ($textype == "between" and meta.type-of($bp2) != "number" and meta.type-of($bp2) != "string") {
+    @error "第3引数 `$bp2` は 'between' の場合、数値または文字列で指定してください。";
+  }
+
+  @if ($textype == min) {
+    @media screen and (min-width: #{$breakpoint1}px), print {
+      @content;
+    }
+  }
+
+  @else if ($textype == max) {
+    // @media screen and (max-width: #{$breakpoint1 - .02px })
+    @media screen and (max-width: #{$breakpoint1}px) {
+      @content;
+    }
+  }
+
+  @else if ($textype == between) {
+    // @media screen and (min-width: #{$breakpoint1}px) and (max-width: #{$breakpoint2 - .02px })
+    @media screen and (min-width: #{$breakpoint1}px) and (max-width: #{$breakpoint2}px) {
+      @content;
+    }
+  }
+
+  @else {
+    @error "引数が間違っています。" + "正しい引数を設定してください。";
+  }
+}
+
+// CONTAINER QUERY
+// ==========================================================================
+
+/// コンテナクエリを生成するmixin
+/// ブレークポイントは文字列キー（_variable.scssを参照）または数値で指定可能
+/// 数値は単位なしの場合pxが自動付与され、単位ありの場合はそのまま使用される
+///
+/// @param {String} $name - コンテナの名前
+/// @param {String} $rule - クエリルール ('min', 'max')
+/// @param {String|Number} $bp1 [0] - ブレークポイント（文字列キーまたは数値）
+///
+/// @example scss - 最小幅を指定
+///   .container {
+///     container-type: inline-size;
+///     container-name: sidebar;
+///   }
+///   .element {
+///     @include container-query(sidebar, min, 'md') {
+///       display: flex;
+///     }
+///   }
+///   // CSS出力:
+///   // @container sidebar (min-width: 768px) {
+///   //   .element {
+///   //     display: flex;
+///   //   }
+///   // }
+///
+/// @example scss - 最大幅を指定
+///   .container {
+///     container-type: inline-size;
+///     container-name: main;
+///   }
+///   .element {
+///     @include container-query(main, max, 600) {
+///       display: block;
+///     }
+///   }
+///   // CSS出力:
+///   // @container main (max-width: 600px) {
+///   //   .element {
+///   //     display: block;
+///   //   }
+///   // }
+///
+/// @example scss - 数値で直接指定
+///   .element {
+///     @include container-query(card, min, 320) {
+///       padding: 1rem;
+///     }
+///   }
+///   // CSS出力:
+///   // @container card (min-width: 320px) {
+///   //   .element {
+///   //     padding: 1rem;
+///   //   }
+///   // }
+///
+@mixin container-query($name, $rule, $bp1: 0) {
+  // ブレークポイントの値を取得（数値の場合はそのまま、文字列の場合はマップから取得）
+  $breakpoint1: if(meta.type-of($bp1) == "number", $bp1, map.get($breakpoints, $bp1));
+  // 単位付与（単位なしの数値にpxを付与）
+  $bp-with-unit: if(math.is-unitless($breakpoint1), $breakpoint1 * 1px, $breakpoint1);
+
+  // 引数のエラーチェック
+  @if (meta.type-of($name) != "string") {
+    @error "第1引数 `$name` は文字列で指定してください。";
+  }
+
+  @if (meta.type-of($rule) != "string" or not list.index(("min", "max"), $rule)) {
+    @error "第2引数 `$rule` は 'min' または 'max' のいずれかを指定してください。";
+  }
+
+  @if (meta.type-of($bp1) != "number" and meta.type-of($bp1) != "string") {
+    @error "第3引数 `$bp1` は数値または文字列で指定してください。";
+  }
+
+  @if ($rule == min) {
+    @container #{$name} (min-width: #{$bp-with-unit}) {
+      @content;
+    }
+  } @else if ($rule == max) {
+    @container #{$name} (max-width: #{$bp-with-unit}) {
+      @content;
+    }
+  } @else {
+    @error "引数が間違っています。" + "正しい引数を設定してください。";
+  }
+}
+
+/// HOVER
+/// ==========================================================================
+/// ホバー、フォーカス状態のスタイルを生成するmixin
+///
+/// @param {Bool} $disabled - 状態を無効化するかどうか（デフォルト: true）
+/// @param {String} $state - 対象の状態 ('hover', 'focus', 'hoverfocus')（デフォルト: 'hoverfocus'）
+///
+/// @example scss - ホバーとフォーカス状態（デフォルト）
+///   .button {
+///     @include hover {
+///       background-color: blue;
+///     }
+///   }
+///   // CSS出力:
+///   // .button:hover,
+///   // .button:focus {
+///   //   background-color: blue;
+///   // }
+///
+/// @example scss - ホバー状態のみ
+///   .button {
+///     @include hover(true, 'hover') {
+///       transform: scale(1.05);
+///     }
+///   }
+///   // CSS出力:
+///   // .button:hover {
+///   //   transform: scale(1.05);
+///   // }
+///
+/// @example scss - フォーカス状態のみ
+///   .button {
+///     @include hover(true, 'focus') {
+///       outline: 2px solid blue;
+///     }
+///   }
+///   // CSS出力:
+///   // .button:focus {
+///   //   outline: 2px solid blue;
+///   // }
+///
+/// @example scss - タッチデバイスで無効化
+///   .button {
+///     @include hover(false, 'hover') {
+///       background-color: red;
+///     }
+///   }
+///   // CSS出力:
+///   // @media (hover: hover) and (pointer: fine) {
+///   //   .button:hover {
+///   //     background-color: red;
+///   //   }
+///   // }
+///
+@mixin hover($disabled: true, $state: "hoverfocus") {
+  @if (meta.type-of($disabled) != "bool") {
+    @error "引数 `$disabled` は`true`または`false`のブール値で指定してください。";
+  }
+
+  @if (meta.type-of($state) != "string" or not list.index(("hover", "focus", "hoverfocus"), $state)) {
+    @error "引数 `$state` は 'hover', 'focus', 'hoverfocus' のいずれかを指定してください。";
+  }
+
+  @if ($disabled == true) {
+    @if ($state == "hover") {
+      &:hover {
+        @content;
+      }
+    } @else if ($state == "focus") {
+      &:focus {
+        @content;
+      }
+    } @else if ($state == "hoverfocus") {
+      &:hover,
+      &:focus {
+        @content;
+      }
+    }
+  } @else if ($disabled == false) {
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        @content;
+      }
+    }
+  } @else {
+    @error "引数が間違っています。正しい引数を設定してください。";
+  }
+}

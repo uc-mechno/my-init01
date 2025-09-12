@@ -1,0 +1,62 @@
+@use "index" as *;
+
+// 最小値
+.media-sm {
+  @include media-query(min, sm) {
+    background-color: lightblue;
+  }
+
+  @include media-query(max, sm) {
+    background-color: lightcoral;
+  }
+
+  @include media-query(between, sm, sm) {
+    background-color: lightgreen;
+  }
+}
+
+// 中間値
+.media-md {
+  @include media-query(min, "md") {
+    background-color: lightblue;
+  }
+
+  @include media-query(max, "md") {
+    background-color: lightcoral;
+  }
+
+  @include media-query(between, "sm", "md") {
+    background-color: lightgreen;
+  }
+
+}
+
+// 最大値
+.media-lg {
+  @include media-query(min, "lg") {
+    background-color: lightblue;
+  }
+
+  @include media-query(max, "lg") {
+    background-color: lightcoral;
+  }
+
+  @include media-query(between, md, lg) {
+    background-color: lightgreen;
+  }
+}
+
+// 数値指定
+.media-suchi {
+  @include media-query(min, 480) {
+    background-color: lightblue;
+  }
+
+  @include media-query(max, 480) {
+    background-color: lightcoral;
+  }
+
+  // @include media-query(between, 360, 480) {
+  //   background-color: lightgreen;
+  // }
+}

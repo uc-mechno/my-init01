@@ -1,0 +1,25 @@
+@use 'index' as *;
+
+.hover-focus {
+  @include hover {
+    background-color: blue;
+  }
+}
+
+.hover {
+  @include hover(true, hover){
+    background-color: red;
+  }
+}
+
+.focus {
+  @include hover(true, focus)  {
+    background-color: green;
+  }
+}
+
+.hover-focus-none {
+  @include hover(false) {
+    background-color: blue;
+  }
+}

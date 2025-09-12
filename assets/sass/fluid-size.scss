@@ -1,0 +1,6 @@
+@use 'index' as *;
+
+ .fluid-size {
+   font-size: fluid-size(16, 24, 'lg', 'rem');
+   padding: fluid-size(10, 40, 'md', 'px');
+ }

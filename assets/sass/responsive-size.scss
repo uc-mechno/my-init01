@@ -1,0 +1,8 @@
+@use 'index' as *;
+
+.responsive-size {
+ width: responsive-size(300px, 'lg', 'vw'); // 300/1024*100 = 29.296875vw
+  font-size: responsive-size(18px, 16, 'rem'); // 18/16 = 1.125rem
+  margin: responsive-size(20px, 400, '%'); // 20/400*100 = 5%
+  line-height: responsive-size(24px, 18, 'em'); // 24/18 = 1.333em
+}

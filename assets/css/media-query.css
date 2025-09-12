@@ -1,0 +1,58 @@
+@media screen and (min-width: 360px), print {
+  .media-sm {
+    background-color: lightblue;
+  }
+}
+@media screen and (max-width: 360px) {
+  .media-sm {
+    background-color: lightcoral;
+  }
+}
+@media screen and (min-width: 360px) and (max-width: 360px) {
+  .media-sm {
+    background-color: lightgreen;
+  }
+}
+
+@media screen and (min-width: 768px), print {
+  .media-md {
+    background-color: lightblue;
+  }
+}
+@media screen and (max-width: 768px) {
+  .media-md {
+    background-color: lightcoral;
+  }
+}
+@media screen and (min-width: 360px) and (max-width: 768px) {
+  .media-md {
+    background-color: lightgreen;
+  }
+}
+
+@media screen and (min-width: 1024px), print {
+  .media-lg {
+    background-color: lightblue;
+  }
+}
+@media screen and (max-width: 1024px) {
+  .media-lg {
+    background-color: lightcoral;
+  }
+}
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+  .media-lg {
+    background-color: lightgreen;
+  }
+}
+
+@media screen and (min-width: 480px), print {
+  .media-suchi {
+    background-color: lightblue;
+  }
+}
+@media screen and (max-width: 480px) {
+  .media-suchi {
+    background-color: lightcoral;
+  }
+}

@@ -1,0 +1,4 @@
+.fluid-size {
+  font-size: clamp(1rem, 0.7289156627rem + 1.2048192771vw, 1.5rem);
+  padding: clamp(10px, -16.4705882353px + 7.3529411765vw, 40px);
+}

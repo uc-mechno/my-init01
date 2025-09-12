@@ -1,0 +1,14 @@
+@font-face {
+  font-family: "Test";
+  font-style: "normal";
+  font-weight: 400;
+  src: url("../fonts/Test-Regular.woff2") format("woff2"), url("../fonts/Test-Regular.woff") format("woff"), url("../fonts/Test-Regular.ttf") format("truetype"), url("../fonts/Test-Regular.otf") format("opentype");
+  font-display: "swap";
+}
+@font-face {
+  font-family: "Test";
+  font-style: normal;
+  font-weight: 700;
+  src: url("../fonts/Test-Bold.woff") format("woff"), url("../fonts/Test-Bold.woff2") format("woff2"), url("../fonts/Test-Bold.otf") format("opentype");
+  font-display: swap;
+}
