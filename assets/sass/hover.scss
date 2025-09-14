@@ -1,4 +1,4 @@
-@use 'index' as *;
+@use "index" as *;
 
 .hover-focus {
   @include hover {
@@ -7,13 +7,13 @@
 }
 
 .hover {
-  @include hover(true, hover){
+  @include hover(true, hover) {
     background-color: red;
   }
 }
 
 .focus {
-  @include hover(true, focus)  {
+  @include hover(true, focus) {
     background-color: green;
   }
 }

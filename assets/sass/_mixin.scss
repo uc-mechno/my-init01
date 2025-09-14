@@ -68,60 +68,33 @@
   }
 }
 
-/// ASPECT RATIO
+/// ASPECT RATIO FRAME
 // ==========================================================================
-/// アスペクト比を維持するmixin
+/// 指定したアスペクト比を持つフレーム要素と、その子要素(img, video, iframe)のサイズ・object-fitを設定するmixin
 ///
 /// @param {Number} $width - 横幅（例: 16）
 /// @param {Number} $height - 高さ（例: 9）
 ///
-/// @example scss - 16:9のアスペクト比
-///   .video {
-///     @include aspect-ratio(16, 9);
+/// @example scss - 16:9のフレーム
+///   .frame {
+///     @include aspect-ratio-frame(16, 9);
 ///   }
 ///   // CSS出力:
-///   // .video {
-///   //   position: relative;
+///   // .frame {
+///   //   aspect-ratio: 16 / 9;
 ///   // }
-///   // .video::before {
-///   //   content: '';
-///   //   float: left;
-///   //   padding-top: 56.25%;
-///   // }
-///   // .video::after {
-///   //   content: '';
-///   //   display: block;
-///   //   clear: both;
-///   // }
-///   // .video > :first-child {
-///   //   height: 100%;
-///   //   left: 0;
-///   //   position: absolute;
-///   //   top: 0;
+///   // .frame :where(img, video, iframe) {
 ///   //   width: 100%;
+///   //   height: 100%;
+///   //   object-fit: cover;
 ///   // }
-///
 @mixin aspect-ratio($width, $height) {
-  position: relative;
-
-  &::before {
-    content: "";
-    padding-top: math.div($height, $width) * 100%;
-    float: left;
-  }
-
-  &::after {
-    content: "";
-    display: block;
-    clear: both;
-  }
-
-  & > :first-child {
-    position: absolute;
-    top: 0;
-    left: 0;
+  aspect-ratio: #{$width} / #{$height};
+  :where(img, video, iframe) {
     width: 100%;
     height: 100%;
+
+    object-fit: cover;
   }
 }
 
@@ -606,6 +579,40 @@
 ///   //   }
 ///   // }
 ///
+/// HOVER MIXIN
+// ===========================================================================
+/// hover, focus, hoverfocus の状態でスタイルを適用するmixin
+/// @param {bool} $disabled - メディアクエリによる制御を有効にする場合は true、無効にする場合は false。
+/// @param {string} $state - 'hover', 'focus', 'hoverfocus' のいずれかを指定。
+/// @content 適用したいCSSプロパティを記述。
+///
+/// @example scss - hover状態のみ
+///   .button {
+///     @include hover(true, "hover") {
+///       background-color: red;
+///     }
+///   }
+///
+/// @example scss - focus状態のみ
+///   .input {
+///     @include hover(true, "focus") {
+///       outline: 2px solid blue;
+///     }
+///   }
+///
+/// @example scss - hoverとfocus両方
+///   .link {
+///     @include hover(true, "hoverfocus") {
+///       text-decoration: underline;
+///     }
+///   }
+///
+/// @example scss - メディアクエリなし
+///   .card {
+///     @include hover(false) {
+///       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+///     }
+///   }
 @mixin hover($disabled: true, $state: "hoverfocus") {
   @if (meta.type-of($disabled) != "bool") {
     @error "引数 `$disabled` は`true`または`false`のブール値で指定してください。";
@@ -617,24 +624,28 @@
 
   @if ($disabled == true) {
     @if ($state == "hover") {
-      &:hover {
-        @content;
+      @media (hover: hover) and (pointer: fine) {
+        &:hover {
+          @content;
+        }
       }
     } @else if ($state == "focus") {
-      &:focus {
+      &:focus-visible {
         @content;
       }
     } @else if ($state == "hoverfocus") {
-      &:hover,
-      &:focus {
+      @media (hover: hover) and (pointer: fine) {
+        &:hover {
+          @content;
+        }
+      }
+      &:focus-visible {
         @content;
       }
     }
   } @else if ($disabled == false) {
-    @media (hover: hover) and (pointer: fine) {
-      &:hover {
-        @content;
-      }
+    &:hover {
+      @content;
     }
   } @else {
     @error "引数が間違っています。正しい引数を設定してください。";

@@ -1,17 +1,22 @@
-.hover-focus:hover, .hover-focus:focus {
+@media (hover: hover) and (pointer: fine) {
+  .hover-focus:hover {
+    background-color: blue;
+  }
+}
+.hover-focus:focus-visible {
   background-color: blue;
 }
 
-.hover:hover {
-  background-color: red;
+@media (hover: hover) and (pointer: fine) {
+  .hover:hover {
+    background-color: red;
+  }
 }
 
-.focus:focus {
+.focus:focus-visible {
   background-color: green;
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .hover-focus-none:hover {
-    background-color: blue;
-  }
+.hover-focus-none:hover {
+  background-color: blue;
 }

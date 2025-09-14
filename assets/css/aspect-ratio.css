@@ -1,20 +1,9 @@
 .video {
-  position: relative;
+  aspect-ratio: 16/9;
 }
-.video::before {
-  content: "";
-  padding-top: 56.25%;
-  float: left;
-}
-.video::after {
-  content: "";
-  display: block;
-  clear: both;
-}
-.video > :first-child {
-  position: absolute;
-  top: 0;
-  left: 0;
+.video :where(img, video, iframe) {
   width: 100%;
   height: 100%;
+  -o-object-fit: cover;
+     object-fit: cover;
 }
