@@ -526,60 +526,6 @@
 }
 
 /// HOVER
-/// ==========================================================================
-/// ホバー、フォーカス状態のスタイルを生成するmixin
-///
-/// @param {Bool} $disabled - 状態を無効化するかどうか（デフォルト: true）
-/// @param {String} $state - 対象の状態 ('hover', 'focus', 'hoverfocus')（デフォルト: 'hoverfocus'）
-///
-/// @example scss - ホバーとフォーカス状態（デフォルト）
-///   .button {
-///     @include hover {
-///       background-color: blue;
-///     }
-///   }
-///   // CSS出力:
-///   // .button:hover,
-///   // .button:focus {
-///   //   background-color: blue;
-///   // }
-///
-/// @example scss - ホバー状態のみ
-///   .button {
-///     @include hover(true, 'hover') {
-///       transform: scale(1.05);
-///     }
-///   }
-///   // CSS出力:
-///   // .button:hover {
-///   //   transform: scale(1.05);
-///   // }
-///
-/// @example scss - フォーカス状態のみ
-///   .button {
-///     @include hover(true, 'focus') {
-///       outline: 2px solid blue;
-///     }
-///   }
-///   // CSS出力:
-///   // .button:focus {
-///   //   outline: 2px solid blue;
-///   // }
-///
-/// @example scss - タッチデバイスで無効化
-///   .button {
-///     @include hover(false, 'hover') {
-///       background-color: red;
-///     }
-///   }
-///   // CSS出力:
-///   // @media (hover: hover) and (pointer: fine) {
-///   //   .button:hover {
-///   //     background-color: red;
-///   //   }
-///   // }
-///
-/// HOVER MIXIN
 // ===========================================================================
 /// hover, focus, hoverfocus の状態でスタイルを適用するmixin
 /// @param {bool} $disabled - メディアクエリによる制御を有効にする場合は true、無効にする場合は false。
