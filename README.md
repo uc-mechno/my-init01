@@ -73,10 +73,6 @@
 ## 説明
 - 各関数名、mixin名で`◯◯.scss`を作成して`css`にコンパイルしています。
 
-## 設定Tips
-- `.vscode/settings.json`でLive Sass Compiler出力先・フォーマッタ指定
-- `.vscode/settings.json`はコメント付きJSON（JSONC）なので一部ツールは注意
-
 ---
 
 ## 最後に
